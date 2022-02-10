@@ -36,7 +36,7 @@ module "ec2_instance" {
 
   name = "basic-webapp"
 
-  ami           = "ami-0c706e3dfc1850237"
+  ami           = data.hcp_packer_image.ubuntu.cloud_image_id
   instance_type = "t4g.micro"
   user_data     = file("${path.module}/userdata.sh")
 

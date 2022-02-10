@@ -7,6 +7,7 @@ packer/packer_manifest.json
 # Terraform
 .terraform/
 terraform.tfstate**
+terraform/.terraform.tfstate.lock.info
 
 # Go
 bin/**
