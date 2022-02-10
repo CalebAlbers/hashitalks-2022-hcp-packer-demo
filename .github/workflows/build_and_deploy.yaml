@@ -100,11 +100,11 @@ jobs:
 
       - name: Promote Iteration to Dev
         working-directory: .github/scripts
-        run: ./set_iteration.sh "hcp-packer-demo" "dev" "${{ needs.build.outputs.iteration_id }}""
+        run: ./set_iteration.sh "hcp-packer-demo" "dev" "${{ needs.build.outputs.iteration_id }}"
 
       - name: Promote Iteration to Staging
         working-directory: .github/scripts
-        run: ./set_iteration.sh "hcp-packer-demo" "staging" "${{ needs.build.outputs.iteration_id }}""
+        run: ./set_iteration.sh "hcp-packer-demo" "staging" "${{ needs.build.outputs.iteration_id }}"
 
   promote-prod:
     name: Promote to Production
@@ -117,4 +117,4 @@ jobs:
 
       - name: Promote Iteration to Prod
         working-directory: .github/scripts
-        run: ./set_iteration.sh "hcp-packer-demo" "prod" "${{ needs.build.outputs.iteration_id }}""
+        run: ./set_iteration.sh "hcp-packer-demo" "prod" "${{ needs.build.outputs.iteration_id }}"
