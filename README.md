@@ -29,15 +29,40 @@ Hello world!
 
 The `./packer` directory holds the Packer template for building an Ubuntu 20.10 server that hosts the aforementioned Go binary. It integrates with HCP Packer so that every time `packer build` is ran, metadata about the artifacts generated are sent to HCP Packer as an **iteration**.
 
+```bash
+cd ./.packer
+packer init .
+packer build .
+```
+
 ### Terraform
 
 The `./terraform` directory holds Terraform code that spins up an EC2 instance hosting the Go web app built earlier via pulling the latest AMI information from HCP Packer. It then attaches a public IP address and outputs the health check endpoint exposed by the web server.
 
 :warning: This Terraform code is meant only to be used as a simple example of E2E testing infrastructure. It is for demo purposes and does not take into account the strict security controls that you should consider when making an application production-ready.
 
+```bash
+cd ./.terraform
+terraform init
+terraform apply -var="iteration_id=$iteration_id" # replace with your desired HCP Packer iteration
+```
+
 ### Integration Test
 
 The `./.github/scripts/e2e_test.sh` script acts as a simple integration testing script. It functions by taking in a health check endpoint url (output from Terraform) and tries to connect every 5 seconds up to 25 attempts. If the health check endpoint exposed by the web app returns a 200 OK, the script succeeds, otherwise it exists with a failure. In practice, replace this with a much more thorough test suite. 
+
+```bash
+cd ./.github/scripts
+./e2e_test.sh <healthcheck_endpoint>
+```
+
+Example: 
+```
+❯ ./e2e_test.sh https://example.com/api/v2/healthz
+[Check: 1/25] Service is not ready yet, retrying in 5 seconds...
+[Check: 2/25] Service is not ready yet, retrying in 5 seconds...
+🎉 Service is up! 🎉
+```
 
 ### GitHub Actions Image Build Workflow
 
