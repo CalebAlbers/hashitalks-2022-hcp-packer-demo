@@ -66,6 +66,8 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_wrapper: false
 
       - name: Terraform Init
         working-directory: ./terraform
@@ -81,12 +83,12 @@ jobs:
 
       - name: Invoke E2E Test
         working-directory: ./.github/scripts
-        run: ./e2e_test.sh ${{ steps.tf_apply.outputs.health_endpoint }}
+        run: ./e2e_test.sh "${{ steps.tf_apply.outputs.health_endpoint }}"
 
       - name: Clean Up Testing Infrastructure
         if: always() # always run cleanup steps, regardless of E2E test outcomes
         working-directory: ./terraform
-        run: terraform destroy -var="iteration_id=${{ needs.build.outputs.iteration_id }}"
+        run: terraform destroy -auto-approve -var="iteration_id=${{ needs.build.outputs.iteration_id }}"
 
   promote-dev-staging:
     name: Promote to Dev and Staging Channels
@@ -98,11 +100,11 @@ jobs:
 
       - name: Promote Iteration to Dev
         working-directory: .github/scripts
-        run: ./set_iteration.sh "hcp-packer-demo" "dev" "${{ needs.build.outputs.iteration_id }}""
+        run: ./set_iteration.sh "hcp-packer-demo" "dev" "${{ needs.build.outputs.iteration_id }}"
 
       - name: Promote Iteration to Staging
         working-directory: .github/scripts
-        run: ./set_iteration.sh "hcp-packer-demo" "staging" "${{ needs.build.outputs.iteration_id }}""
+        run: ./set_iteration.sh "hcp-packer-demo" "staging" "${{ needs.build.outputs.iteration_id }}"
 
   promote-prod:
     name: Promote to Production
@@ -115,4 +117,4 @@ jobs:
 
       - name: Promote Iteration to Prod
         working-directory: .github/scripts
-        run: ./set_iteration.sh "hcp-packer-demo" "prod" "${{ needs.build.outputs.iteration_id }}""
+        run: ./set_iteration.sh "hcp-packer-demo" "prod" "${{ needs.build.outputs.iteration_id }}"
