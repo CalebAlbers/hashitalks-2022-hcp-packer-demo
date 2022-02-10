@@ -1,8 +1,13 @@
-# Cache objects
+.env
+
+# Packer
 packer_cache/
+packer/packer_manifest.json
 
-# Crash log
-crash.log
+# Terraform
+.terraform/
+terraform.tfstate**
+terraform/.terraform.tfstate.lock.info
 
-# For built boxes
-*.box
+# Go
+bin/**
