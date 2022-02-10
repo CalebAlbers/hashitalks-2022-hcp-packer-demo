@@ -1,7 +1,8 @@
 .env
 
-# Cache objects
+# Packer
 packer_cache/
+packer/packer_manifest.json
 
 # Terraform
 .terraform/
