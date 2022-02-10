@@ -26,6 +26,8 @@ i=1
 interval=5 # check every 5 seconds
 max_attempts=25 # 5 minutes
 
+echo "Running test against target: $host"
+
 until $(curl --output /dev/null --silent --head --fail "$host"); do
     if [ ${i} -ge ${max_attempts} ];then
       echo "Service state is unhealthy after ${i} attempts... failing health check."

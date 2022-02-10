@@ -81,7 +81,7 @@ jobs:
 
       - name: Invoke E2E Test
         working-directory: ./.github/scripts
-        run: ./e2e_test.sh ${{ steps.tf_apply.outputs.health_endpoint }}
+        run: ./e2e_test.sh "${{ steps.tf_apply.outputs.health_endpoint }}"
 
       - name: Clean Up Testing Infrastructure
         if: always() # always run cleanup steps, regardless of E2E test outcomes
