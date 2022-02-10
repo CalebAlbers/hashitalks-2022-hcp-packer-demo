@@ -21,7 +21,13 @@ build {
   hcp_packer_registry {
     bucket_name = "hcp-packer-demo"
     description = "Super simple static website"
-    labels = {
+
+    bucket_labels = {
+      "hashitalks" = "2022"
+      "author" = "Caleb Albers"
+    }
+
+    build_labels = {
       "foo-version" = "1.4.2",
     }
   }
