@@ -10,7 +10,6 @@ data "hcp_packer_image" "ubuntu" {
 }
 
 resource "aws_security_group" "allow_8080" {
-  name        = "allow_8080"
   description = "Allow inbound TCP traffic to port 8080"
 
   ingress {
