@@ -88,7 +88,7 @@ jobs:
       - name: Clean Up Testing Infrastructure
         if: always() # always run cleanup steps, regardless of E2E test outcomes
         working-directory: ./terraform
-        run: terraform destroy -var="iteration_id=${{ needs.build.outputs.iteration_id }}"
+        run: terraform destroy -auto-approve -var="iteration_id=${{ needs.build.outputs.iteration_id }}"
 
   promote-dev-staging:
     name: Promote to Dev and Staging Channels
