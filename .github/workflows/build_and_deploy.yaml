@@ -1,0 +1,118 @@
+name: Build and Deploy
+
+on:
+  workflow_dispatch:
+
+env:
+  HCP_ORGANIZATION_ID: ${{ secrets.HCP_ORGANIZATION_ID }}
+  HCP_PROJECT_ID: ${{ secrets.HCP_PROJECT_ID }}
+  HCP_CLIENT_ID: ${{ secrets.HCP_CLIENT_ID }}
+  HCP_CLIENT_SECRET: ${{ secrets.HCP_CLIENT_SECRET }}
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    outputs:
+      iteration_id: ${{ steps.hcp.outputs.iteration_id }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Compile Application
+        env:
+          GOOS: linux
+          GOARCH: arm64 # target architecture is ubuntu on arm64 instances
+        run: go build -o bin/server app/main.go
+
+      - name: Packer Init
+        working-directory: ./packer
+        run: packer init
+
+      - name: Packer Build
+        working-directory: ./packer
+        run: packer build .
+
+      - name: Get HCP Packer Iteration ID from Packer Manifest
+        id: hcp
+        working-directory: ./packer
+        run: |
+          last_run_uuid=$(jq -r '.last_run_uuid' "./packer_manifest.json")
+          build=$(jq -r '.builds[] | select(.packer_run_uuid == "'"$last_run_uuid"'")' "./packer_manifest.json")
+          iteration_id=$(echo "$build" | jq -r '.custom_data.iteration_id')
+          echo "::set-output name=iteration_id::$iteration_id"
+
+  test:
+    name: E2E Testing
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform Init
+        working-directory: ./terraform
+        run: terraform init
+
+      - name: Create Ephemeral Infrastructure
+        id: tf_apply
+        working-directory: ./terraform
+        run: |
+          terraform apply -auto-approve -var="iteration_id=${{ needs.build.outputs.iteration_id }}"
+          health_endpoint="$(terraform output -raw health_endpoint)"
+          echo "::set-output name=health_endpoint::${health_endpoint}"
+
+      - name: Invoke E2E Test
+        working-directory: ./.github/scripts
+        run: ./e2e_test.sh ${{ steps.tf_apply.outputs.health_endpoint }}
+
+      - name: Clean Up Testing Infrastructure
+        if: always() # always run cleanup steps, regardless of E2E test outcomes
+        working-directory: ./terraform
+        run: terraform destroy -var="iteration_id=${{ needs.build.outputs.iteration_id }}"
+
+  promote-dev-staging:
+    name: Promote to Dev and Staging Channels
+    needs: ['build', 'test'] # this will automatically be skipped if the test job fails
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Promote Iteration to Dev
+        working-directory: .github/scripts
+        run: ./set_iteration.sh "hcp-packer-demo" "dev" "${{ needs.build.outputs.iteration_id }}""
+
+      - name: Promote Iteration to Staging
+        working-directory: .github/scripts
+        run: ./set_iteration.sh "hcp-packer-demo" "staging" "${{ needs.build.outputs.iteration_id }}""
+
+  promote-prod:
+    name: Promote to Production
+    needs: ['build', 'test', 'promote-dev-staging']
+    environment: production # requires approval
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Promote Iteration to Prod
+        working-directory: .github/scripts
+        run: ./set_iteration.sh "hcp-packer-demo" "prod" "${{ needs.build.outputs.iteration_id }}""
