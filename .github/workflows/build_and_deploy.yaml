@@ -34,7 +34,7 @@ jobs:
 
       - name: Packer Init
         working-directory: ./packer
-        run: packer init
+        run: packer init .
 
       - name: Packer Build
         working-directory: ./packer
