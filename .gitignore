@@ -1,8 +1,11 @@
+.env
+
 # Cache objects
 packer_cache/
 
-# Crash log
-crash.log
+# Terraform
+.terraform/
+terraform.tfstate**
 
-# For built boxes
-*.box
+# Go
+bin/**
