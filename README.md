@@ -1,4 +1,4 @@
-# hcp-packer-demo
+# hcp-packer-demo :tada:
 
 This repo holds the code for my "Automating Image Pipelines with HCP Packer" presentation at [HashiTalks 2022](https://events.hashicorp.com/hashitalks2022). It contains functional code examples for packaging an AMI with a static go binary with Packer, running an integration test against that AMI, and then promoting the validated image to dev, staging, and production release channels via HCP Packer.
 
