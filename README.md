@@ -2,6 +2,9 @@
 
 This repo holds the code for my "Automating Image Pipelines with HCP Packer" presentation at [HashiTalks 2022](https://events.hashicorp.com/hashitalks2022). It contains functional code examples for packaging an AMI with a static go binary with Packer, running an integration test against that AMI, and then promoting the validated image to dev, staging, and production release channels via HCP Packer.
 
+[![IMAGE ALT TEXT](https://user-images.githubusercontent.com/7110138/162481240-f9b5e487-dedd-47e9-aabd-6b32a17fd34e.png)](http://www.youtube.com/watch?v=C0DEQZjzYUs "Automating Image Pipelines with HCP Packer")
+
+
 ## Getting Started
 
 ### Go Web App
