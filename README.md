@@ -52,7 +52,7 @@ terraform apply -var="iteration_id=$iteration_id" # replace with your desired HC
 
 ### Integration Test
 
-The `./.github/scripts/e2e_test.sh` script acts as a simple integration testing script. It functions by taking in a health check endpoint url (output from Terraform) and tries to connect every 5 seconds up to 25 attempts. If the health check endpoint exposed by the web app returns a 200 OK, the script succeeds, otherwise it exists with a failure. In practice, replace this with a much more thorough test suite. 
+The `./.github/scripts/e2e_test.sh` script acts as a simple integration testing script. It functions by taking in a health check endpoint url (output from Terraform) and tries to connect every 5 seconds up to 25 attempts. If the health check endpoint exposed by the web app returns a 200 OK, the script succeeds, otherwise it exits with a failure. In practice, replace this with a much more thorough test suite. 
 
 ```bash
 cd ./.github/scripts
